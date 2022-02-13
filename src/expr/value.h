@@ -8,7 +8,7 @@ public:
 	};
 
 public:
-
+	double asNumber() const;
 
 public:
 	QString displayString() const;

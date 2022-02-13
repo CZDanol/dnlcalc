@@ -10,6 +10,7 @@ namespace Rules {
 
 	public:
 		static inline const Identifier identifier = "Number"_ID;
+		static inline const QString description = "Number";
 
 	public:
 		static RuleSP parse(Parser &p) {

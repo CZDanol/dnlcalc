@@ -8,6 +8,9 @@ namespace Rules {
 	class CompositeExpression final : public Expression {
 
 	public:
+		static inline const QString description = QStringLiteral("CompositeExpression( %1 )").arg(QStringList{Elements::description...}.join(", "));
+
+	public:
 		static RuleSP parse(Parser &p) {
 			static const auto els = QList{Elements::identifier...};
 

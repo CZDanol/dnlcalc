@@ -20,7 +20,7 @@ public:
 
 	template<auto F>
 	inline void addExpression() {
-		auto helper = [this] <typename ...Args > (Value (*)(const Args&...)) {
+		auto helper = [this] <typename... Args > (Value (*)(const Args &...)) {
 			addRule<Rules::CompositeExpression<F, Args...>>();
 		};
 		helper(F);
@@ -28,14 +28,16 @@ public:
 
 private:
 	struct RuleRef {
-		virtual Identifier identifier() const = 0;
+		Identifier identifier;
+		QString description;
 		virtual RuleSP parse(Parser &p) = 0;
 	};
 	template<typename T>
 	struct RuleRefT : public RuleRef {
-		static const inline Identifier identifierStatic = T::identifier;
-
-		virtual Identifier identifier() const override { return identifierStatic; }
+		RuleRefT() {
+			identifier = T::identifier;
+			description = T::description;
+		}
 
 		virtual RuleSP parse(Parser &p) override { return T::parse(p); }
 	};

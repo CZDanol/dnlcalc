@@ -9,6 +9,7 @@ namespace Rules {
 
 	public:
 		static inline const Identifier identifier = "Expression"_ID;
+		static inline const QString description = "Expression";
 
 	public:
 		virtual Value exec() const = 0;

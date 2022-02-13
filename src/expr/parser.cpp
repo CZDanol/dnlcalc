@@ -11,13 +11,19 @@ void Parser::setup(const QString &source) {
 }
 
 RuleSP Parser::parse(Identifier rule) {
+	qDebug() << "Enter" << state_.pos << rule;
+
 	RuleSP &result = cache_[{state_.pos, rule}];
-	if(result)
+	if(result) {
+		qDebug() << "Found in cache" << rule;
 		return result;
+	}
 
 	const auto variants = global.rules.ruleVariants(rule);
-	if(variants.isEmpty())
+	if(variants.isEmpty()) {
+		qDebug() << "No variants";
 		return error(tr("No variants for rule '%1'").arg(rule.str()));
+	}
 
 	const State origState = state_;
 
@@ -28,11 +34,15 @@ RuleSP Parser::parse(Identifier rule) {
 	qsizetype longestMatch = -1;
 	for(qsizetype i = state_.ruleVariantRecursion.value(rule), e = variants.size(); i < e; i++) {
 		state_.ruleVariantRecursion[rule] = i + 1;
-		RuleSP r = variants.at(i)->parse(*this);
+		auto &v = variants.at(i);
+		qDebug() << "Test variant" << i << v->identifier << v->description;
+
+		RuleSP r = v->parse(*this);
 
 		// Found match -> return
 		if(!r->isErrorRule()) {
 			result = r;
+			qDebug() << "Matched variant" << i << state_.pos;
 			return r;
 		}
 
@@ -45,6 +55,7 @@ RuleSP Parser::parse(Identifier rule) {
 		state_ = origState;
 	}
 
+	qDebug() << "Err longest match" << longestMatch;
 	return result;
 }
 

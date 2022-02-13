@@ -10,3 +10,8 @@ struct StaticString {
 		return QString::fromUtf8(val.data());
 	}
 };
+
+template<StaticString s>
+constexpr auto operator "" _S() {
+	return s;
+}

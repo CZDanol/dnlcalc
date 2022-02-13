@@ -4,13 +4,15 @@
 #include "expr/value.h"
 
 namespace Rules {
+
 	class Expression : public Rule {
 
 	public:
-		static inline const QString identifier = "Expression";
+		static inline const Identifier identifier = "Expression"_ID;
 
 	public:
 		virtual Value exec() const = 0;
 
 	};
+
 }

@@ -8,6 +8,12 @@ public:
 	};
 
 public:
+
+
+public:
+	QString displayString() const;
+
+public:
 	Type type;
 	double numberValue;
 	QString unit;

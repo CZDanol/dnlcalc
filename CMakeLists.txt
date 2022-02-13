@@ -33,48 +33,48 @@ target_link_libraries(proj PRIVATE Qt6::Widgets Qt6::Gui)
 set(PROGRAM_NAME DNLCalc)
 
 target_compile_definitions(proj PRIVATE
-        "PROGRAM_VERSION=\"${CMAKE_PROJECT_VERSION}\""
-        "PROGRAM_NAME_VERSION=\"${PROGRAM_NAME} ${CMAKE_PROJECT_VERSION}\""
-        "PLATFORM_ID=\"${OS_STRING}_${PLATFORM_STRING}\""
-        )
+				"PROGRAM_VERSION=\"${CMAKE_PROJECT_VERSION}\""
+				"PROGRAM_NAME_VERSION=\"${PROGRAM_NAME} ${CMAKE_PROJECT_VERSION}\""
+				"PLATFORM_ID=\"${OS_STRING}_${PLATFORM_STRING}\""
+				)
 
 # ===========================================
 # Sources & includes
 # ===========================================
 file(
-        GLOB_RECURSE proj_src CONFIGURE_DEPENDS
-        "src/*.h"
-        "src/*.cpp"
+				GLOB_RECURSE proj_src CONFIGURE_DEPENDS
+				"src/*.h"
+				"src/*.cpp"
 )
 
 target_sources(proj PRIVATE ${proj_src})
 
 target_include_directories(proj PRIVATE
-        "src"
-        )
+				"src"
+				)
 target_include_directories(proj SYSTEM PRIVATE
-        "include"
-        )
+				"include"
+				)
 target_precompile_headers(proj PRIVATE
-        "src/pch.h"
-        )
+				"src/pch.h"
+				)
 
 # ===========================================
 # Resources
 # ===========================================
 file(GLOB_RECURSE res_files CONFIGURE_DEPENDS "res/*")
 qt_add_resources(proj "res"
-        PREFIX "/res"
-        BASE "res"
-        FILES ${res_files}
-        )
+				PREFIX "/res"
+				BASE "res"
+				FILES ${res_files}
+				)
 
 if (MSVC)
-    # worldgenapi_cpu.cpp is not happy when this is not done, dunno why
-    target_compile_options(proj PRIVATE /bigobj)
+		# worldgenapi_cpu.cpp is not happy when this is not done, dunno why
+		target_compile_options(proj PRIVATE /bigobj)
 
-    # Enable parallel build
-    target_compile_options(proj PRIVATE /MP)
+		# Enable parallel build
+		target_compile_options(proj PRIVATE /MP)
 endif ()
 
 # ===========================================

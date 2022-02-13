@@ -1,17 +1,10 @@
 #pragma once
 
 class Parser {
+	Q_DECLARE_TR_FUNCTIONS(Parser)
 
 public:
-	class ParseException : public std::exception {
-
-	public:
-		inline ParseException(const QString &msg) : msg(msg) {}
-
-	public:
-		QString msg;
-
-	};
+	void setup(const QString &source);
 
 public:
 	inline const QString &source() const {
@@ -20,20 +13,41 @@ public:
 
 	/// Position in source for the currently parsed rule
 	inline qsizetype pos() const {
-		return pos_;
-	}
-
-	/// Sets the position to somewhere else
-	inline void setPos(qsizetype set) {
-		pos_ = set;
+		return state_.pos;
 	}
 
 public:
-	RuleSP parse(const QString &rule);
+	/// Parse rule at the current position for the current source
+	RuleSP parse(Identifier rule);
+
+	template<typename T>
+	inline RuleSP parse() {
+		return parse(T::identifier);
+	}
+
+	RuleSP error(const QString &msg);
+
+	/// Sets the position to somewhere else
+	void setPos(qsizetype set);
+
+	void skipWhitespace();
 
 private:
 	QString source_;
-	qsizetype pos_;
+	qsizetype sourceLen_;
+
+private:
+	struct State {
+		qsizetype pos = 0;
+
+		/// To prevent infinite left recursion, when testing the same rule on the same position multiple times, next time test only variants that have not been tested yet
+		QMap<Identifier, qsizetype> ruleVariantRecursion;
+	};
+	State state_;
+
+private:
+	/// Cache of already parsed rules at various positions (so they don't have to be parsed multiple times)
+	QHash<QPair<qsizetype, Identifier>, RuleSP> cache_;
 
 };
 

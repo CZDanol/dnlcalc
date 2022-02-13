@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QWidget>
+#include <QMainWindow>
 
 namespace Ui {
 	class CalcWindow;
 }
 
-class CalcWindow : public QWidget
+class CalcWindow : public QMainWindow
 {
 	Q_OBJECT
 
@@ -16,6 +17,10 @@ public:
 
 public slots:
 	void updateExpressionInputHeight();
+	void processInput();
+
+protected:
+	virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
 	Ui::CalcWindow *ui;

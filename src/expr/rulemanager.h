@@ -8,6 +8,11 @@ public:
 	~RuleManager();
 
 public:
+	inline auto ruleVariants(Identifier rule) const {
+		return rules_.value(rule);
+	}
+
+public:
 	template<typename T>
 	void addRule() {
 		rules_[T::identifier] += new RuleRefT<T>();
@@ -15,7 +20,7 @@ public:
 
 	template<auto F>
 	inline void addExpression() {
-		auto helper = [this] <typename ...Args > (const std::function<Value(Args...)> &) {
+		auto helper = [this] <typename ...Args > (Value (*)(const Args&...)) {
 			addRule<Rules::CompositeExpression<F, Args...>>();
 		};
 		helper(F);
@@ -23,20 +28,20 @@ public:
 
 private:
 	struct RuleRef {
-		virtual const QString &identifier() const = 0;
+		virtual Identifier identifier() const = 0;
 		virtual RuleSP parse(Parser &p) = 0;
 	};
 	template<typename T>
 	struct RuleRefT : public RuleRef {
-		static const inline QString identifierStatic = T::identifier;
+		static const inline Identifier identifierStatic = T::identifier;
 
-		virtual const QString &identifier() const override { return identifierStatic; }
+		virtual Identifier identifier() const override { return identifierStatic; }
 
 		virtual RuleSP parse(Parser &p) override { return T::parse(p); }
 	};
 
 private:
-	QHash<QString, QList<RuleRef *>> rules_;
+	QHash<Identifier, QList<RuleRef *>> rules_;
 
 };
 

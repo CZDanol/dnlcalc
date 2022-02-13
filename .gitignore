@@ -1,3 +1,4 @@
 build/
 .idea/
 *.user
+build_clion/

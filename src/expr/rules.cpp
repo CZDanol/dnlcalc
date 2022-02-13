@@ -9,10 +9,13 @@ void loadRules(RuleManager &r) {
 
 	r.addRule<Number>();
 
-	r.addExpression<[](Number &n) {
-		return Value{
-			.type = Value::Type::number,
-			.numberValue = n.v,
-		};
-	}>();
+	// Math rules
+	{
+		r.addExpression<+[](const Number &n) {
+			return Value{
+				.type = Value::Type::number,
+				.numberValue = n.v,
+			};
+		}>();
+	}
 }

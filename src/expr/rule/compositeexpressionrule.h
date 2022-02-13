@@ -3,25 +3,37 @@
 #include "expressionrule.h"
 
 namespace Rules {
+
 	template<auto func, typename... Elements>
 	class CompositeExpression final : public Expression {
 
 	public:
 		static RuleSP parse(Parser &p) {
-			auto elements = std::tuple{p.parse(Elements::identifier)...};
+			static const auto els = QList{Elements::identifier...};
+
+			QList<RuleSP> elements;
+			for(Identifier ruleId: els) {
+				auto r = p.parse(ruleId);
+				if(r->isErrorRule())
+					return r;
+
+				p.skipWhitespace();
+				elements += r;
+			}
 
 			auto r = std::make_shared<CompositeExpression>();
-			r->elements = std::move(elements);
+			r->elements.swap(elements);
 			return r;
 		}
 
 		virtual Value exec() const override {
-			size_t i = 0;
-			return std::apply(func, std::tuple{*static_cast<Elements * > (elements[i++].get())...});
+			qsizetype i = 0;
+			return std::apply(func, std::tuple<const Elements &...>{*static_cast<const Elements * > (elements.at(i++).get())...});
 		}
 
 	public:
-		std::vector<RuleSP> elements;
+		QList<RuleSP> elements;
 
 	};
+
 }

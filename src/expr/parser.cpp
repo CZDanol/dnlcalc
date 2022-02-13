@@ -11,17 +11,18 @@ void Parser::setup(const QString &source) {
 }
 
 RuleSP Parser::parse(Identifier rule) {
-	qDebug() << "Enter" << state_.pos << rule;
+	qDebug().noquote() << state_.debugOffset_ << "Enter" << state_.pos << rule << "\"" << source_.mid(state_.pos) << "\"";
 
-	RuleSP &result = cache_[{state_.pos, rule}];
-	if(result) {
-		qDebug() << "Found in cache" << rule;
-		return result;
+	CacheRec &cr = cache_[{state_.pos, rule}];
+	if(cr.rule) {
+		qDebug().noquote() << state_.debugOffset_ << "Found in cache" << rule;
+		state_.pos = cr.endPos;
+		return cr.rule;
 	}
 
 	const auto variants = global.rules.ruleVariants(rule);
 	if(variants.isEmpty()) {
-		qDebug() << "No variants";
+		qDebug().noquote() << state_.debugOffset_ << "No variants";
 		return error(tr("No variants for rule '%1'").arg(rule.str()));
 	}
 
@@ -31,32 +32,38 @@ RuleSP Parser::parse(Identifier rule) {
 	// Stop on first variant match.
 	// If no variant matches, return error of the longest match
 	// Start at previously attempted rule variant for the same position + 1 to prevent infinite recursion
-	qsizetype longestMatch = -1;
 	for(qsizetype i = state_.ruleVariantRecursion.value(rule), e = variants.size(); i < e; i++) {
 		state_.ruleVariantRecursion[rule] = i + 1;
+		state_.debugOffset_ += "  ";
+
 		auto &v = variants.at(i);
-		qDebug() << "Test variant" << i << v->identifier << v->description;
+		qDebug().noquote() << state_.debugOffset_ << "Test variant" << i << v->identifier << v->description;
+
+		state_.debugOffset_ += "  ";
 
 		RuleSP r = v->parse(*this);
 
 		// Found match -> return
 		if(!r->isErrorRule()) {
-			result = r;
-			qDebug() << "Matched variant" << i << state_.pos;
+			cr.rule = r;
+			cr.endPos = state_.pos;
+			qDebug().noquote() << state_.debugOffset_ << "Matched variant" << i << state_.pos;
+			state_.debugOffset_ = origState.debugOffset_;
 			return r;
 		}
 
-		if(state_.pos > longestMatch) {
-			longestMatch = state_.pos;
-			result = r;
+		if(state_.pos > cr.endPos) {
+			cr.rule = r;
+			cr.endPos = state_.pos;
 		}
 
 		// Revert to starting state, try another variant of the rule
 		state_ = origState;
 	}
 
-	qDebug() << "Err longest match" << longestMatch;
-	return result;
+	qDebug().noquote() << state_.debugOffset_ << "Err longest match" << cr.endPos;
+	state_.debugOffset_ = origState.debugOffset_;
+	return cr.rule;
 }
 
 RuleSP Parser::error(const QString &msg) {

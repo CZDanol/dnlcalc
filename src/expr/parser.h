@@ -42,12 +42,19 @@ private:
 
 		/// To prevent infinite left recursion, when testing the same rule on the same position multiple times, next time test only variants that have not been tested yet
 		QMap<Identifier, qsizetype> ruleVariantRecursion;
+
+		QString debugOffset_;
 	};
 	State state_;
 
 private:
+	struct CacheRec {
+		RuleSP rule;
+		qsizetype endPos;
+	};
+
 	/// Cache of already parsed rules at various positions (so they don't have to be parsed multiple times)
-	QHash<QPair<qsizetype, Identifier>, RuleSP> cache_;
+	QHash<QPair<qsizetype, Identifier>, CacheRec> cache_;
 
 };
 

@@ -1,5 +1,3 @@
-#include <QApplication>
-
 #include "gui/calcwindow.h"
 
 int main(int argc, char *argv[]) {

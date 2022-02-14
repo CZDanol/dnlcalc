@@ -53,7 +53,7 @@ RuleSP Parser::parse(Identifier rule) {
 		}
 
 		if(state_.pos >= pr->sourceRef.end)
-			pr = r;
+			r = pr;
 
 		// Revert to starting state, try another variant of the rule
 		state_ = origState;

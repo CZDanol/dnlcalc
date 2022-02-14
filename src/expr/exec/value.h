@@ -12,7 +12,7 @@ public:
 
 public:
 	/// String displayed in the result field
-	QString displayString() const;
+	QString displayString(ExecutionContext &ctx) const;
 
 	/// String displayed on match error (should mainly show type)
 	QString matchString() const;
@@ -22,6 +22,8 @@ public:
 
 public:
 	double numberValue;
+
+	/// Unit, in the raw input formet (as was)
 	QString unit;
 
 public:

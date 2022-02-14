@@ -21,6 +21,7 @@ public slots:
 
 protected:
 	virtual bool eventFilter(QObject *o, QEvent *e) override;
+	virtual void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::CalcWindow *ui;

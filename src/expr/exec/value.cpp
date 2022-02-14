@@ -1,5 +1,8 @@
 #include "value.h"
 
+#include "expr/unit/unit.h"
+#include "global.h"
+
 double Value::asNumber() const {
 	switch(type) {
 
@@ -12,11 +15,15 @@ double Value::asNumber() const {
 	}
 }
 
-QString Value::displayString() const {
+QString Value::displayString(ExecutionContext &ctx) const {
 	switch(type) {
 
-		case Type::number:
-			return QStringLiteral("%1 %2").arg(QLocale().toString(numberValue), unit);
+		case Type::number: {
+			if(const Unit *u = global.units.matchUnits(unit).value(0))
+				return QStringLiteral("%1 %2").arg(u->valueTransformer(ctx, numberValue), u->standardForm);
+
+			return QLocale().toString(numberValue);
+		}
 
 		default:
 			return QStringLiteral("##CANNOT FORMAT##");

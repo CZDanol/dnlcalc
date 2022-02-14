@@ -7,7 +7,9 @@
 Global global;
 
 void Global::init() {
-	loadIntrinsicUnits(units);
+	IntrinsicUnits::setup(units);
 	loadIntrinsicRules(rules);
 	loadIntrinsicFunctions(functions);
+
+	units.update();
 }

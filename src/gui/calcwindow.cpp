@@ -13,6 +13,8 @@
 CalcWindow::CalcWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::CalcWindow) {
 	ui->setupUi(this);
 
+	setWindowTitle(PROGRAM_NAME_VERSION);
+
 	ui->teExpression->installEventFilter(this);
 	connect(ui->teExpression->document(), &QTextDocument::contentsChanged, this, &CalcWindow::updateExpressionInputHeight);
 	updateExpressionInputHeight();
@@ -55,17 +57,17 @@ void CalcWindow::processInput() {
 	assert(&r);
 
 	ExecutionContext ctx;
-	Value result;
+	QString result;
 
 	try {
-		result = r.exec(ctx);
+		result = r.exec(ctx).displayString(ctx);
 	}
 	catch(const ExecutionError &e) {
 		ui->lblError->setText(e.msg);
 		return;
 	}
 
-	ui->lblResult->setText(result.displayString());
+	ui->lblResult->setText(result);
 }
 
 bool CalcWindow::eventFilter(QObject *o, QEvent *e) {
@@ -78,4 +80,13 @@ bool CalcWindow::eventFilter(QObject *o, QEvent *e) {
 	}
 
 	return false;
+}
+
+void CalcWindow::showEvent(QShowEvent *event) {
+	QWidget::showEvent(event);
+
+	if(event->isAccepted()) {
+		ui->teExpression->setFocus();
+		ui->teExpression->selectAll();
+	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rule/compositeexpressionrule.h"
+#include "expr/parser/rule/compositeexpressionrule.h"
 
 class RuleManager {
 

@@ -3,11 +3,11 @@
 
 #include <QKeyEvent>
 
-#include "parser/parser.h"
-#include "parser/rule/expressionrule.h"
-#include "parser/rule/errorrule.h"
+#include "expr/parser/parser.h"
+#include "expr/parser/rule/expressionrule.h"
+#include "expr/parser/rule/errorrule.h"
 
-#include "value/executioncontext.h"
+#include "expr/exec/executioncontext.h"
 
 CalcWindow::CalcWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::CalcWindow) {
 	ui->setupUi(this);

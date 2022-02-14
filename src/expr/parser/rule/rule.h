@@ -1,6 +1,7 @@
 #pragma once
 
-#include "parser/parser.h"
+#include "expr/parser/parser.h"
+#include "expr/parser/sourceref.h"
 
 class Rule {
 
@@ -13,6 +14,9 @@ public:
 	inline bool isErrorRule() const {
 		return isError_;
 	}
+
+public:
+	SourceRef sourceRef;
 
 private:
 	bool isError_;

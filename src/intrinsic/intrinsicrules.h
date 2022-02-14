@@ -1,3 +1,3 @@
 #pragma once
 
-void loadIntrinsicRules(RuleManager &r);
+void loadIntrinsicRules(RuleManager &mgr);

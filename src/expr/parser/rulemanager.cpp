@@ -1,6 +1,6 @@
 #include "rulemanager.h"
 
-#include "rule/numberrule.h"
+#include "expr/parser/rule/numberrule.h"
 
 RuleManager::~RuleManager() {
 	for(auto &rl: rules_)

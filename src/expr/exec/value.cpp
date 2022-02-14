@@ -23,3 +23,15 @@ QString Value::displayString() const {
 
 	}
 }
+
+QString Value::matchString() const {
+	switch(type) {
+
+		case Type::number:
+			return QStringLiteral("num(%1)").arg(QLocale().toString(numberValue));
+
+		default:
+			return QStringLiteral("###");
+
+	}
+}

@@ -59,14 +59,10 @@ public:
 
 		bool operator ==(const CacheKey &o) const = default;
 	};
-	struct CacheRec {
-		RuleSP rule;
-		qsizetype endPos;
-	};
 
 private:
 	/// Cache of already parsed rules at various positions (so they don't have to be parsed multiple times)
-	QHash<CacheKey, CacheRec> cache_;
+	QHash<CacheKey, RuleSP> cache_;
 
 };
 

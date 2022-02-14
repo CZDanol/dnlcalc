@@ -1,7 +1,7 @@
-#include "parser/parser.h"
+#include "parser.h"
 
-#include "rule/rule.h"
-#include "rule/errorrule.h"
+#include "expr/parser/rule/rule.h"
+#include "expr/parser/rule/errorrule.h"
 #include "global.h"
 #include "util/valueguard.h"
 
@@ -14,12 +14,15 @@ void Parser::setup(const QString &source) {
 RuleSP Parser::parse(Identifier rule) {
 	ValueGuard _vg(state_.recursion);
 
+	const qsizetype startPos = state_.pos;
+
 	const qsizetype recursion = state_.recursion.value(rule);
 	const CacheKey cacheKey{state_.pos, rule, recursion};
-	CacheRec cr = cache_.value(cacheKey);
-	if(cr.rule) {
-		setPos(cr.endPos);
-		return cr.rule;
+
+	RuleSP r = cache_.value(cacheKey);
+	if(r) {
+		setPos(r->sourceRef.end);
+		return r;
 	}
 
 	const auto variants = global.rules.ruleVariants(rule);
@@ -36,27 +39,29 @@ RuleSP Parser::parse(Identifier rule) {
 		state_.recursion[rule] = i + 1;
 
 		const auto &v = variants.at(i);
-		RuleSP r = v->parse(*this);
+		RuleSP pr = v->parse(*this);
+
+		const_cast<SourceRef &>(pr->sourceRef) = SourceRef{
+			.start = startPos,
+			.end = state_.pos,
+		};
 
 		// Found match -> return
-		if(!r->isErrorRule()) {
-			cr.rule = r;
-			cr.endPos = state_.pos;
-			cache_[cacheKey] = cr;
-			return r;
+		if(!pr->isErrorRule()) {
+			cache_[cacheKey] = pr;
+			return pr;
 		}
 
-		if(state_.pos >= cr.endPos) {
-			cr.rule = r;
-			cr.endPos = state_.pos;
-		}
+		if(state_.pos >= pr->sourceRef.end)
+			pr = r;
 
 		// Revert to starting state, try another variant of the rule
 		state_ = origState;
 	}
 
-	cache_[cacheKey] = cr;
-	return cr.rule;
+	assert(r);
+	cache_[cacheKey] = r;
+	return r;
 }
 
 RuleSP Parser::error(const QString &msg) {

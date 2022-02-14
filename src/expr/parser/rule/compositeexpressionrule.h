@@ -1,6 +1,8 @@
 #pragma once
 
 #include "expressionrule.h"
+#include "expr/exec/executioncontext.h"
+#include "util/valueguard.h"
 
 namespace Rules {
 
@@ -13,7 +15,12 @@ namespace Rules {
 	public:
 		static RuleSP parse(Parser &p) {
 			using F = RuleSP (*)(Parser &);
-			static const F parseFuncs[] = {+[](Parser &p) { return Elements::parse(p); }...};
+			static const F parseFuncs[] = {+[](Parser &p) {
+				auto r = Elements::parse(p);
+				const auto &d = Elements::description;
+				assert(r);
+				return r;
+			}...};
 
 			QList<RuleSP> elements;
 			for(const auto &parsef: parseFuncs) {
@@ -31,6 +38,7 @@ namespace Rules {
 		}
 
 		virtual Value exec(ExecutionContext &ctx) const override {
+			ValueGuard _srg(ctx.sourceRef, sourceRef);
 			qsizetype i = 0;
 			return std::apply(func, std::tuple<ExecutionContext &, const Elements &...>{ctx, static_cast<const Elements & > (*elements.at(i++))...});
 		}

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "parser/rulemanager.h"
-#include "value/functionmanager.h"
+#include "expr/parser/rulemanager.h"
+#include "expr/function/functionmanager.h"
 
 class Global {
 

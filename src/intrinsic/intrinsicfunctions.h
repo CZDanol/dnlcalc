@@ -1,4 +1,6 @@
 #pragma once
 
-void loadIntrinsicFunctions();
+#include "expr/function/functionmanager.h"
+
+void loadIntrinsicFunctions(FunctionManager &mgr);
 

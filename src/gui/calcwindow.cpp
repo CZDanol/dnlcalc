@@ -49,7 +49,7 @@ void CalcWindow::processInput() {
 	}
 
 	if(p.pos() != src.length()) {
-		static const QRegularExpression r("^([a-z]+|[0-9]+|[^a-z0-9]+)");
+		static const QRegularExpression r("^([a-z]+|[0-9]+|[^a-z0-9]+)", QRegularExpression::CaseInsensitiveOption);
 		ui->lblError->setText(tr("(%1): Unexpected \"%2\".").arg(QString::number(p.pos()), r.match(src.mid(p.pos()).trimmed()).captured(0)));
 	}
 

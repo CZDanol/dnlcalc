@@ -14,6 +14,7 @@
 #include <QRegularExpression>
 #include <QApplication>
 #include <QLocale>
+#include <QDir>
 
 #include "util/identifier.h"
 

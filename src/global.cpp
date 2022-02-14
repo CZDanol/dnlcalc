@@ -7,6 +7,8 @@
 Global global;
 
 void Global::init() {
+	dataDir = QDir(QDir().absolutePath() + "/../");
+
 	IntrinsicUnits::setup(units);
 	loadIntrinsicRules(rules);
 	loadIntrinsicFunctions(functions);

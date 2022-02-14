@@ -77,13 +77,14 @@ const Quantity *UnitManager::addQuantity(Identifier id, const QString &name) {
 const Unit *UnitManager::addUnit(const QString &standardForm, const Quantity *quantity, double coef, const QString &matchPattern, const Unit::ValueTransformer &valueTransformer) {
 	Unit *u = new Unit{
 		.standardForm = standardForm,
-		.regex = QRegularExpression(matchPattern),
+		.regex = QRegularExpression(QStringLiteral("\\b(%1)\\b").arg(matchPattern)),
 		.coef = coef,
 		.quantity = quantity,
 		.ix = units_.size(),
 		.valueTransformer = valueTransformer,
 	};
 
+	const_cast<Quantity*>(quantity)->units += u;
 	units_ += u;
 	return u;
 }

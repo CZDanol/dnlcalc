@@ -1,6 +1,7 @@
 #include "value.h"
 
 #include "expr/unit/unit.h"
+#include "expr/unit/quantity.h"
 #include "global.h"
 
 double Value::asNumber() const {
@@ -19,8 +20,11 @@ QString Value::displayString(ExecutionContext &ctx) const {
 	switch(type) {
 
 		case Type::number: {
-			if(const Unit *u = global.units.matchUnits(unit).value(0))
-				return QStringLiteral("%1 %2").arg(u->valueTransformer(ctx, numberValue), u->standardForm);
+			// Automatically transform to default unit
+			if(const Unit *u = global.units.matchUnits(unit).value(0)) {
+				const Unit *tu = u->quantity->units.first();
+				return QStringLiteral("%1 %2").arg(tu->valueTransformer(ctx, numberValue / u->coef * tu->coef), tu->standardForm);
+			}
 
 			return QLocale().toString(numberValue);
 		}

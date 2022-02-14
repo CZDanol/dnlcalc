@@ -14,6 +14,9 @@ public:
 	RuleManager rules;
 	FunctionManager functions;
 
+public:
+	QDir dataDir;
+
 };
 
 extern Global global;

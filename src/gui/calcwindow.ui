@@ -43,6 +43,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Fira Code</family>
            <pointsize>24</pointsize>
            <bold>true</bold>
           </font>

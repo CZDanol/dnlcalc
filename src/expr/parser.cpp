@@ -3,6 +3,7 @@
 #include "rule/rule.h"
 #include "rule/errorrule.h"
 #include "global.h"
+#include "util/valueguard.h"
 
 void Parser::setup(const QString &source) {
 	source_ = source;
@@ -11,8 +12,9 @@ void Parser::setup(const QString &source) {
 }
 
 RuleSP Parser::parse(Identifier rule) {
-	const qsizetype recursion = state_.recursionRule == rule ? state_.ruleRecursion : 0;
+	ValueGuard _vg(state_.recursion);
 
+	const qsizetype recursion = state_.recursion.value(rule);
 	const CacheKey cacheKey{state_.pos, rule, recursion};
 	CacheRec cr = cache_.value(cacheKey);
 	if(cr.rule) {
@@ -31,11 +33,9 @@ RuleSP Parser::parse(Identifier rule) {
 	// If no variant matches, return error of the longest match
 	// Start at previously attempted rule variant for the same position + 1 to prevent infinite recursion
 	for(qsizetype i = recursion, e = variants.size(); i < e; i++) {
-		state_.recursionRule = rule;
-		state_.ruleRecursion = i + 1;
+		state_.recursion[rule] = i + 1;
 
-		auto &v = variants.at(i);
-
+		const auto &v = variants.at(i);
 		RuleSP r = v->parse(*this);
 
 		// Found match -> return
@@ -46,7 +46,7 @@ RuleSP Parser::parse(Identifier rule) {
 			return r;
 		}
 
-		if(state_.pos > cr.endPos) { 
+		if(state_.pos >= cr.endPos) {
 			cr.rule = r;
 			cr.endPos = state_.pos;
 		}
@@ -64,9 +64,8 @@ RuleSP Parser::error(const QString &msg) {
 }
 
 void Parser::setPos(qsizetype set) {
-	assert(set > state_.pos);
+	assert(set >= state_.pos);
 	state_.pos = set;
-	state_.recursionRule = {};
 }
 
 void Parser::skipWhitespace() {

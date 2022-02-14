@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 
 #include "expr/parser.h"
+#include "expr/executioncontext.h"
 #include "expr/rule/expressionrule.h"
 #include "expr/rule/errorrule.h"
 
@@ -38,18 +39,23 @@ void CalcWindow::processInput() {
 	p.skipWhitespace();
 
 	if(rr->isErrorRule()) {
-		auto &e = dynamic_cast<Rules::Error &>(*rr);
+		auto &e = dynamic_cast<const Rules::Error &>(*rr);
 		ui->lblError->setText(tr("(%1): %2").arg(QString::number(e.pos()), e.msg()));
 		return;
 	}
 
-	if(p.pos() != src.length())
-		ui->lblError->setText(tr("Unexpected \"%1\" at the end of the input.").arg(src.mid(p.pos())));
+	if(p.pos() != src.length()) {
+		static const QRegularExpression r("^([a-z]+|[0-9]+|[^a-z0-9]+)");
+		ui->lblError->setText(tr("(%1): Unexpected \"%2\".").arg(QString::number(p.pos()), r.match(src.mid(p.pos()).trimmed()).captured(0)));
+	}
 
-	auto &r = dynamic_cast<Rules::Expression &>(*rr);
+	auto &r = dynamic_cast<const Rules::Expression &>(*rr);
 	assert(&r);
 
-	ui->lblResult->setText(r.exec().displayString());
+	ExecutionContext ctx;
+	Value result = r.exec(ctx);
+
+	ui->lblResult->setText(result.displayString());
 }
 
 bool CalcWindow::eventFilter(QObject *o, QEvent *e) {

@@ -20,7 +20,7 @@ public:
 
 	template<auto F>
 	inline void addExpression() {
-		auto helper = [this] <typename... Args > (Value (*)(const Args &...)) {
+		auto helper = [this] <typename... Args > (Value (*)(ExecutionContext &, const Args &...)) {
 			addRule<Rules::CompositeExpression<F, Args...>>();
 		};
 		helper(F);

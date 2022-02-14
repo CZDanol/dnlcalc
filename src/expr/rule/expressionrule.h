@@ -15,7 +15,11 @@ namespace Rules {
 		static RuleSP parse(Parser &p);
 
 	public:
-		virtual Value exec() const = 0;
+		virtual Value exec(ExecutionContext &ctx) const = 0;
+
+		inline Value operator ()(ExecutionContext &ctx) const {
+			return exec(ctx);
+		}
 
 	};
 

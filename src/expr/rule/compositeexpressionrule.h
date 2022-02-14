@@ -30,9 +30,9 @@ namespace Rules {
 			return r;
 		}
 
-		virtual Value exec() const override {
+		virtual Value exec(ExecutionContext &ctx) const override {
 			qsizetype i = 0;
-			return std::apply(func, std::tuple<const Elements &...>{*static_cast<const Elements * > (elements.at(i++).get())...});
+			return std::apply(func, std::tuple<ExecutionContext &, const Elements &...>{ctx, static_cast<const Elements & > (*elements.at(i++))...});
 		}
 
 	public:

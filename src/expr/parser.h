@@ -30,6 +30,11 @@ public:
 	/// Sets the position to somewhere else
 	void setPos(qsizetype set);
 
+	/// Reset recursion limiting on the given rule
+	inline void resetRecursion(Identifier rule) {
+		state_.recursion.remove(rule);
+	}
+
 	void skipWhitespace();
 
 private:
@@ -39,8 +44,10 @@ private:
 private:
 	struct State {
 		qsizetype pos = 0;
-		Identifier recursionRule;
-		qsizetype ruleRecursion = 0;
+
+		/// Used for detecting and resolving left recursion
+		/// Cleared when the pos is changed
+		QMap<Identifier, qsizetype> recursion;
 	};
 	State state_;
 
@@ -48,7 +55,7 @@ public:
 	struct CacheKey {
 		qsizetype pos;
 		Identifier rule;
-		qsizetype variant;
+		qsizetype recursion;
 
 		bool operator ==(const CacheKey &o) const = default;
 	};
@@ -64,5 +71,5 @@ private:
 };
 
 inline size_t qHash(const Parser::CacheKey &c, size_t seed = 0) {
-	return qHashMulti(seed, c.pos, c.rule, c.variant);
+	return qHashMulti(seed, c.pos, c.rule, c.recursion);
 }

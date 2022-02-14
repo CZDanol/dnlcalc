@@ -6,4 +6,6 @@ class Parser;
 class Rule;
 class RuleManager;
 
-using RuleSP = std::shared_ptr<Rule>;
+class ExecutionContext;
+
+using RuleSP = std::shared_ptr<const Rule>;

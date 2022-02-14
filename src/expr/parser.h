@@ -1,7 +1,7 @@
 #pragma once
 
 class Parser {
-	Q_DECLARE_TR_FUNCTIONS(Parser)
+Q_DECLARE_TR_FUNCTIONS(Parser)
 
 public:
 	void setup(const QString &source);
@@ -39,22 +39,30 @@ private:
 private:
 	struct State {
 		qsizetype pos = 0;
-
-		/// To prevent infinite left recursion, when testing the same rule on the same position multiple times, next time test only variants that have not been tested yet
-		QMap<Identifier, qsizetype> ruleVariantRecursion;
-
-		QString debugOffset_;
+		Identifier recursionRule;
+		qsizetype ruleRecursion = 0;
 	};
 	State state_;
 
-private:
+public:
+	struct CacheKey {
+		qsizetype pos;
+		Identifier rule;
+		qsizetype variant;
+
+		bool operator ==(const CacheKey &o) const = default;
+	};
 	struct CacheRec {
 		RuleSP rule;
 		qsizetype endPos;
 	};
 
+private:
 	/// Cache of already parsed rules at various positions (so they don't have to be parsed multiple times)
-	QHash<QPair<qsizetype, Identifier>, CacheRec> cache_;
+	QHash<CacheKey, CacheRec> cache_;
 
 };
 
+inline size_t qHash(const Parser::CacheKey &c, size_t seed = 0) {
+	return qHashMulti(seed, c.pos, c.rule, c.variant);
+}

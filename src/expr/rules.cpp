@@ -9,8 +9,6 @@
 void loadRules(RuleManager &r) {
 	using namespace Rules;
 
-	r.addRule<Number>();
-
 	// Math rules
 	{
 		// a + b
@@ -18,6 +16,28 @@ void loadRules(RuleManager &r) {
 			return Value{
 				.type = Value::Type::number,
 				.numberValue = a.exec().asNumber() + b.exec().asNumber(),
+			};
+		}>();
+		// a - b
+		r.addExpression<+[](const Expression &a, const String<"-"_S> &, const Expression &b) {
+			return Value{
+				.type = Value::Type::number,
+				.numberValue = a.exec().asNumber() - b.exec().asNumber(),
+			};
+		}>();
+
+		// a * b
+		r.addExpression<+[](const Expression &a, const String<"*"_S> &, const Expression &b) {
+			return Value{
+				.type = Value::Type::number,
+				.numberValue = a.exec().asNumber() * b.exec().asNumber(),
+			};
+		}>();
+		// a / b
+		r.addExpression<+[](const Expression &a, const String<"/"_S> &, const Expression &b) {
+			return Value{
+				.type = Value::Type::number,
+				.numberValue = a.exec().asNumber() / b.exec().asNumber(),
 			};
 		}>();
 

@@ -12,6 +12,9 @@ namespace Rules {
 		static inline const QString description = "Expression";
 
 	public:
+		static RuleSP parse(Parser &p);
+
+	public:
 		virtual Value exec() const = 0;
 
 	};

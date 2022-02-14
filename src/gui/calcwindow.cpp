@@ -43,10 +43,8 @@ void CalcWindow::processInput() {
 		return;
 	}
 
-	if(p.pos() != src.length()) {
-		ui->lblError->setText(tr("Unexpected '%1' at the end of the input.").arg(src.mid(p.pos())));
-		return;
-	}
+	if(p.pos() != src.length())
+		ui->lblError->setText(tr("Unexpected \"%1\" at the end of the input.").arg(src.mid(p.pos())));
 
 	auto &r = dynamic_cast<Rules::Expression &>(*rr);
 	assert(&r);

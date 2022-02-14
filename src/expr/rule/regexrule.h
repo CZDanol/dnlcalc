@@ -11,8 +11,7 @@ namespace Rules {
 
 	public:
 		static inline const QString pattern = pattern_.toString();
-		static inline const Identifier identifier = Identifier::fromString("__regex_" + pattern);
-		static inline const QString description = QStringLiteral("Regex(%1)").arg(pattern);
+		static inline const QString description = QStringLiteral("Regex(\"%1\")").arg(pattern);
 		static inline const QRegularExpression regex = QRegularExpression(pattern);
 
 	public:

@@ -8,15 +8,16 @@ namespace Rules {
 	class CompositeExpression final : public Expression {
 
 	public:
-		static inline const QString description = QStringLiteral("CompositeExpression( %1 )").arg(QStringList{Elements::description...}.join(", "));
+		static inline const QString description = QStringLiteral("CE( %1 )").arg(QStringList{Elements::description...}.join(", "));
 
 	public:
 		static RuleSP parse(Parser &p) {
-			static const auto els = QList{Elements::identifier...};
+			using F = RuleSP (*)(Parser &);
+			static const F parseFuncs[] = {+[](Parser &p) { return Elements::parse(p); }...};
 
 			QList<RuleSP> elements;
-			for(Identifier ruleId: els) {
-				auto r = p.parse(ruleId);
+			for(const auto &parsef: parseFuncs) {
+				auto r = parsef(p);
 				if(r->isErrorRule())
 					return r;
 

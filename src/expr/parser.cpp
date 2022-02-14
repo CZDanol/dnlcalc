@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "expr/parser.h"
 
 #include "rule/rule.h"
 #include "rule/errorrule.h"
@@ -11,20 +11,18 @@ void Parser::setup(const QString &source) {
 }
 
 RuleSP Parser::parse(Identifier rule) {
-	qDebug().noquote() << state_.debugOffset_ << "Enter" << state_.pos << rule << "\"" << source_.mid(state_.pos) << "\"";
+	const qsizetype recursion = state_.recursionRule == rule ? state_.ruleRecursion : 0;
 
-	CacheRec &cr = cache_[{state_.pos, rule}];
+	const CacheKey cacheKey{state_.pos, rule, recursion};
+	CacheRec cr = cache_.value(cacheKey);
 	if(cr.rule) {
-		qDebug().noquote() << state_.debugOffset_ << "Found in cache" << rule;
-		state_.pos = cr.endPos;
+		setPos(cr.endPos);
 		return cr.rule;
 	}
 
 	const auto variants = global.rules.ruleVariants(rule);
-	if(variants.isEmpty()) {
-		qDebug().noquote() << state_.debugOffset_ << "No variants";
+	if(variants.isEmpty())
 		return error(tr("No variants for rule '%1'").arg(rule.str()));
-	}
 
 	const State origState = state_;
 
@@ -32,14 +30,11 @@ RuleSP Parser::parse(Identifier rule) {
 	// Stop on first variant match.
 	// If no variant matches, return error of the longest match
 	// Start at previously attempted rule variant for the same position + 1 to prevent infinite recursion
-	for(qsizetype i = state_.ruleVariantRecursion.value(rule), e = variants.size(); i < e; i++) {
-		state_.ruleVariantRecursion[rule] = i + 1;
-		state_.debugOffset_ += "  ";
+	for(qsizetype i = recursion, e = variants.size(); i < e; i++) {
+		state_.recursionRule = rule;
+		state_.ruleRecursion = i + 1;
 
 		auto &v = variants.at(i);
-		qDebug().noquote() << state_.debugOffset_ << "Test variant" << i << v->identifier << v->description;
-
-		state_.debugOffset_ += "  ";
 
 		RuleSP r = v->parse(*this);
 
@@ -47,12 +42,11 @@ RuleSP Parser::parse(Identifier rule) {
 		if(!r->isErrorRule()) {
 			cr.rule = r;
 			cr.endPos = state_.pos;
-			qDebug().noquote() << state_.debugOffset_ << "Matched variant" << i << state_.pos;
-			state_.debugOffset_ = origState.debugOffset_;
+			cache_[cacheKey] = cr;
 			return r;
 		}
 
-		if(state_.pos > cr.endPos) {
+		if(state_.pos > cr.endPos) { 
 			cr.rule = r;
 			cr.endPos = state_.pos;
 		}
@@ -61,8 +55,7 @@ RuleSP Parser::parse(Identifier rule) {
 		state_ = origState;
 	}
 
-	qDebug().noquote() << state_.debugOffset_ << "Err longest match" << cr.endPos;
-	state_.debugOffset_ = origState.debugOffset_;
+	cache_[cacheKey] = cr;
 	return cr.rule;
 }
 
@@ -73,9 +66,7 @@ RuleSP Parser::error(const QString &msg) {
 void Parser::setPos(qsizetype set) {
 	assert(set > state_.pos);
 	state_.pos = set;
-
-	// Clear rule variant recursion when moving forward
-	state_.ruleVariantRecursion.clear();
+	state_.recursionRule = {};
 }
 
 void Parser::skipWhitespace() {
@@ -84,5 +75,6 @@ void Parser::skipWhitespace() {
 	while(i < e && source_.at(i).isSpace())
 		i++;
 
-	state_.pos = i;
+	if(i != state_.pos)
+		setPos(i);
 }

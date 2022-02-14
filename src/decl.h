@@ -2,9 +2,12 @@
 
 #include <memory>
 
+class RuleManager;
+class FunctionManager;
+class UnitManager;
+
 class Parser;
 class Rule;
-class RuleManager;
 
 class ExecutionContext;
 

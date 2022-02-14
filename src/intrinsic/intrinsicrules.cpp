@@ -2,6 +2,7 @@
 
 #include "expr/parser/rulemanager.h"
 #include "expr/exec/executioncontext.h"
+#include "util/iterator.h"
 
 #include "expr/parser/rule/numberrule.h"
 #include "expr/parser/rule/repeatrule.h"
@@ -17,48 +18,23 @@ void loadIntrinsicRules(RuleManager &mgr) {
 	{
 		// a + b
 		mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"+"_S>, Expression> &bs) {
-			Value result = a(ctx);
-			for(const auto &b: bs.recs)
-				result = ctx.functionCall("add"_ID, {result, std::get<1>(b)(ctx)});
-
-			return result;
+			return iterator(bs.recs).foldx(ctx.functionCall("add"_ID, {a, std::get<1>(b)(ctx)}), a(ctx));
 		}>();
 
-		/*	// a - b
-			mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"-"_S>, Expression> &bs) {
-				Value result = a(ctx);
-				for(const auto &b: bs.recs) {
-					result = Value{
-						.type = Value::Type::number,
-						.numberValue = result.asNumber() - std::get<1>(b)(ctx).asNumber(),
-					};
-				}
-				return result;
-			}>();
+		// a - b
+		mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"-"_S>, Expression> &bs) {
+			return iterator(bs.recs).foldx(ctx.functionCall("sub"_ID, {a, std::get<1>(b)(ctx)}), a(ctx));
+		}>();
 
-			// a * b
-			mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"*"_S>, Expression> &bs) {
-				Value result = a(ctx);
-				for(const auto &b: bs.recs) {
-					result = Value{
-						.type = Value::Type::number,
-						.numberValue = result.asNumber() * std::get<1>(b)(ctx).asNumber(),
-					};
-				}
-				return result;
-			}>();
+		// a * b
+		mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"*"_S>, Expression> &bs) {
+			return iterator(bs.recs).foldx(ctx.functionCall("mult"_ID, {a, std::get<1>(b)(ctx)}), a(ctx));
+		}>();
 
-			// a / b
-			mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"/"_S>, Expression> &bs) {
-				Value result = a(ctx);
-				for(const auto &b: bs.recs) {
-					result = Value{
-						.type = Value::Type::number,
-						.numberValue = result.asNumber() / std::get<1>(b)(ctx).asNumber(),
-					};
-				}
-				return result;
-			}>();*/
+		// a / b
+		mgr.addExpression<+[](C &ctx, const Expression &a, const Repeat<String<"/"_S>, Expression> &bs) {
+			return iterator(bs.recs).foldx(ctx.functionCall("div"_ID, {a, std::get<1>(b)(ctx)}), a(ctx));
+		}>();
 
 		// ( e )
 		mgr.addExpression<+[](C &ctx, const String<"("_S> &, const Recursion<Expression> &e, const String<")"_S> &) {

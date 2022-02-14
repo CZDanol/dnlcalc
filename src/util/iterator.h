@@ -12,6 +12,8 @@
 #define filterx(expr) filter([&] (const auto &x) { return expr; })
 #define whilex(expr) while_([&] (const auto &x) { return expr; })
 
+#define foldx(expr, initval) fold([&] (const auto &a, const auto &b) { return expr; }, initval)
+
 #define anyx(expr) filterx(expr).has()
 #define allx(expr) filterx(!(expr)).hasNot()
 
@@ -205,6 +207,13 @@ public:
 		R r = {};
 		while(has())
 			r += take();
+		return r;
+	}
+
+	template<typename F, typename R = T>
+	inline R fold(const F &func, R initVal = {}) {
+		R r = initVal;
+		while(has()) r = func(r, take());
 		return r;
 	}
 

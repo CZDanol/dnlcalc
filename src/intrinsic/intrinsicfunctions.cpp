@@ -1,5 +1,6 @@
 #include "intrinsicfunctions.h"
 
+#include "expr/function/functionmanager.h"
 #include "expr/function/match/number.h"
 
 void loadIntrinsicFunctions(FunctionManager &mgr) {

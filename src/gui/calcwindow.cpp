@@ -8,6 +8,7 @@
 #include "expr/parser/rule/errorrule.h"
 
 #include "expr/exec/executioncontext.h"
+#include "expr/exec/executionerror.h"
 
 CalcWindow::CalcWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::CalcWindow) {
 	ui->setupUi(this);
@@ -54,7 +55,15 @@ void CalcWindow::processInput() {
 	assert(&r);
 
 	ExecutionContext ctx;
-	Value result = r.exec(ctx);
+	Value result;
+
+	try {
+		result = r.exec(ctx);
+	}
+	catch(const ExecutionError &e) {
+		ui->lblError->setText(e.msg);
+		return;
+	}
 
 	ui->lblResult->setText(result.displayString());
 }

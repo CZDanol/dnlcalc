@@ -1,6 +1,7 @@
 #pragma once
 
-#include "expr/rulemanager.h"
+#include "parser/rulemanager.h"
+#include "value/functionmanager.h"
 
 class Global {
 
@@ -9,6 +10,7 @@ public:
 
 public:
 	RuleManager rules;
+	FunctionManager functions;
 
 };
 

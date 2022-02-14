@@ -1,9 +1,9 @@
 #include "global.h"
 
-#include "expr/rules.h"
+#include "intrinsic/intrinsicrules.h"
 
 Global global;
 
 void Global::init() {
-	loadRules(rules);
+	loadIntrinsicRules(rules);
 }

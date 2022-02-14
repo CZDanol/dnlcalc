@@ -1,15 +1,15 @@
-#include <expr/rule/repeatrule.h>
-#include "rules.h"
+#include "intrinsicrules.h"
 
-#include "rulemanager.h"
-#include "executioncontext.h"
+#include "parser/rulemanager.h"
+#include "value/executioncontext.h"
 
-#include "rule/numberrule.h"
-#include "rule/regexrule.h"
-#include "rule/stringrule.h"
-#include "rule/recursionrule.h"
+#include "parser/rule/numberrule.h"
+#include "parser/rule/repeatrule.h"
+#include "parser/rule/regexrule.h"
+#include "parser/rule/stringrule.h"
+#include "parser/rule/recursionrule.h"
 
-void loadRules(RuleManager &r) {
+void loadIntrinsicRules(RuleManager &r) {
 	using namespace Rules;
 
 	// Math rules
